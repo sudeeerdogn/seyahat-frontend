@@ -15,7 +15,8 @@ function Destinations() {
     headers: { Authorization: `Bearer ${token}` }
   });
 
-  useEffect(() => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
     fetchDestinations();
   }, []);
 
