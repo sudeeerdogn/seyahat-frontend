@@ -82,15 +82,23 @@ function Destinations() {
         <div style={styles.form}>
           <h3>Yeni Destinasyon</h3>
           <form onSubmit={handleAdd}>
-            {['name', 'country', 'description', 'estimatedBudget', 'durationDays', 'category'].map((field) => (
-              <input
-                key={field}
-                style={styles.input}
-                placeholder={field}
-                value={form[field]}
-                onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-              />
-            ))}
+           {[
+  { key: 'name', label: 'Destinasyon Adı' },
+  { key: 'country', label: 'Ülke' },
+  { key: 'description', label: 'Açıklama' },
+  { key: 'estimatedBudget', label: 'Tahmini Bütçe (TL)' },
+  { key: 'durationDays', label: 'Gün Sayısı' },
+  { key: 'category', label: 'Kategori' }
+].map(({ key, label }) => (
+  <input
+    key={key}
+    style={styles.input}
+    placeholder={label}
+    value={form[key]}
+    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+  />
+))}
+
             <button style={styles.addBtn} type="submit">Kaydet</button>
           </form>
         </div>
