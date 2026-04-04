@@ -21,18 +21,22 @@ useEffect(() => {
     fetchDestinations();
   }, []);
 
-  const fetchDestinations = async () => {
-    try {
+ useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const res = await api.get('/api/destinations');
+        setDestinations(res.data);
+      } catch (err) {
+        navigate('/login');
+      }
+    };
+    fetchDestinations();
+  }, [navigate]);
+
+ const handleSearch = async () => {
+    if (!keyword.trim()) {
       const res = await api.get('/api/destinations');
       setDestinations(res.data);
-    } catch (err) {
-      navigate('/login');
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!keyword.trim()) {
-      fetchDestinations();
       return;
     }
     const res = await api.get(`/api/destinations/search?keyword=${keyword}`);
