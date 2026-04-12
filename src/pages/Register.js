@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+const API_URL = process.env.REACT_APP_API_URL || 'https://seyahat-planlayici-api.onrender.com';
+
 function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -12,7 +14,7 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/register', {
+      const response = await axios.post(`${API_URL}/api/auth/register`, {
         name,
         email,
         password
@@ -31,32 +33,12 @@ function Register() {
         <h3 style={styles.subtitle}>Kayıt Ol</h3>
         {error && <p style={styles.error}>{error}</p>}
         <form onSubmit={handleRegister}>
-          <input
-            style={styles.input}
-            type="text"
-            placeholder="Adın Soyadın"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            style={styles.input}
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            style={styles.input}
-            type="password"
-            placeholder="Şifre"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <input style={styles.input} type="text" placeholder="Adın Soyadın" value={name} onChange={(e) => setName(e.target.value)} />
+          <input style={styles.input} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input style={styles.input} type="password" placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} />
           <button style={styles.button} type="submit">Kayıt Ol</button>
         </form>
-        <p style={styles.link}>
-          Zaten hesabın var mı? <Link to="/login">Giriş Yap</Link>
-        </p>
+        <p style={styles.link}>Zaten hesabın var mı? <Link to="/login">Giriş Yap</Link></p>
       </div>
     </div>
   );
