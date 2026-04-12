@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 /* eslint-disable react-hooks/exhaustive-deps */
+
+const API_URL = 'https://seyahat-planlayici-api.onrender.com';
 
 function Destinations() {
   const [destinations, setDestinations] = useState([]);
@@ -11,34 +14,27 @@ function Destinations() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  const API_URL = process.env.REACT_APP_API_URL || 'https://seyahat-planlayici-api.onrender.com';
-
-const api = axios.create({
+  const api = axios.create({
     baseURL: API_URL,
     headers: { Authorization: `Bearer ${token}` }
-});
+  });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-useEffect(() => {
+  useEffect(() => {
     fetchDestinations();
   }, []);
 
- useEffect(() => {
-    const fetchDestinations = async () => {
-      try {
-        const res = await api.get('/api/destinations');
-        setDestinations(res.data);
-      } catch (err) {
-        navigate('/login');
-      }
-    };
-    fetchDestinations();
-  }, [navigate]);
-
- const handleSearch = async () => {
-    if (!keyword.trim()) {
+  const fetchDestinations = async () => {
+    try {
       const res = await api.get('/api/destinations');
       setDestinations(res.data);
+    } catch (err) {
+      navigate('/login');
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!keyword.trim()) {
+      fetchDestinations();
       return;
     }
     const res = await api.get(`/api/destinations/search?keyword=${keyword}`);
@@ -90,23 +86,22 @@ useEffect(() => {
         <div style={styles.form}>
           <h3>Yeni Destinasyon</h3>
           <form onSubmit={handleAdd}>
-           {[
-  { key: 'name', label: 'Destinasyon Adı' },
-  { key: 'country', label: 'Ülke' },
-  { key: 'description', label: 'Açıklama' },
-  { key: 'estimatedBudget', label: 'Tahmini Bütçe (TL)' },
-  { key: 'durationDays', label: 'Gün Sayısı' },
-  { key: 'category', label: 'Kategori' }
-].map(({ key, label }) => (
-  <input
-    key={key}
-    style={styles.input}
-    placeholder={label}
-    value={form[key]}
-    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-  />
-))}
-
+            {[
+              { key: 'name', label: 'Destinasyon Adı' },
+              { key: 'country', label: 'Ülke' },
+              { key: 'description', label: 'Açıklama' },
+              { key: 'estimatedBudget', label: 'Tahmini Bütçe (TL)' },
+              { key: 'durationDays', label: 'Gün Sayısı' },
+              { key: 'category', label: 'Kategori' }
+            ].map(({ key, label }) => (
+              <input
+                key={key}
+                style={styles.input}
+                placeholder={label}
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+              />
+            ))}
             <button style={styles.addBtn} type="submit">Kaydet</button>
           </form>
         </div>
