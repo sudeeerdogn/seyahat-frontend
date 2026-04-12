@@ -12,7 +12,7 @@ function Destinations() {
   const token = localStorage.getItem('token');
 
   const api = axios.create({
-    baseURL: 'https://seyahat-planlayici-api-production.up.railway.app',
+    baseURL: 'https://seyahat-planlayici-api.onrender.com',
     headers: { Authorization: `Bearer ${token}` }
   });
 
