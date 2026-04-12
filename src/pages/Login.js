@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+const API_URL = 'https://seyahat-planlayici-api.onrender.com';
+
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,7 +13,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password
       });
@@ -29,25 +31,11 @@ function Login() {
         <h3 style={styles.subtitle}>Giriş Yap</h3>
         {error && <p style={styles.error}>{error}</p>}
         <form onSubmit={handleLogin}>
-          <input
-            style={styles.input}
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            style={styles.input}
-            type="password"
-            placeholder="Şifre"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <input style={styles.input} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input style={styles.input} type="password" placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} />
           <button style={styles.button} type="submit">Giriş Yap</button>
         </form>
-        <p style={styles.link}>
-          Hesabın yok mu? <Link to="/register">Kayıt Ol</Link>
-        </p>
+        <p style={styles.link}>Hesabın yok mu? <Link to="/register">Kayıt Ol</Link></p>
       </div>
     </div>
   );
