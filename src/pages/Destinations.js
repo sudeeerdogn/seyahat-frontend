@@ -11,10 +11,12 @@ function Destinations() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  const api = axios.create({
-    baseURL: 'https://seyahat-planlayici-api.onrender.com',
+  const API_URL = process.env.REACT_APP_API_URL || 'https://seyahat-planlayici-api.onrender.com';
+
+const api = axios.create({
+    baseURL: API_URL,
     headers: { Authorization: `Bearer ${token}` }
-  });
+});
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
 useEffect(() => {
