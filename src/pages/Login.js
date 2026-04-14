@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
-const API_URL = 'https://seyahat-planlayici-api.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'https://seyahat-planlayici-api.onrender.com';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -20,7 +20,8 @@ function Login() {
       localStorage.setItem('token', response.data.token);
       navigate('/destinations');
     } catch (err) {
-      setError('Email veya şifre yanlış!');
+      const backendMessage = err?.response?.data?.message;
+      setError(backendMessage || 'Sunucuya bağlanılamadı veya email/şifre hatalı.');
     }
   };
 

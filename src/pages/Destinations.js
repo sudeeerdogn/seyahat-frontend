@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 /* eslint-disable react-hooks/exhaustive-deps */
 
-const API_URL = 'https://seyahat-planlayici-api.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'https://seyahat-planlayici-api.onrender.com';
 
 function Destinations() {
   const [destinations, setDestinations] = useState([]);
@@ -12,50 +12,72 @@ function Destinations() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: '', country: '', description: '', estimatedBudget: '', durationDays: '', category: '' });
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
 
-  const api = axios.create({
-    baseURL: API_URL,
-    headers: { Authorization: `Bearer ${token}` }
+  // Token'ı her zaman güncel bir şekilde almak için yardımcı fonksiyon
+  const getAuthHeader = () => ({
+    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   });
+
+  // Verileri Getirme (fetchDestinations)
+  const fetchDestinations = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/destinations`, getAuthHeader());
+      setDestinations(res.data);
+    } catch (err) {
+      console.error("Veri çekme hatası:", err);
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/login');
+      }
+    }
+  }, [navigate]);
 
   useEffect(() => {
     fetchDestinations();
-  }, []);
+  }, [fetchDestinations]);
 
-  const fetchDestinations = async () => {
+  // Arama İşlemi
+  const handleSearch = async () => {
     try {
-      const res = await api.get('/api/destinations');
+      if (!keyword.trim()) {
+        fetchDestinations();
+        return;
+      }
+      const res = await axios.get(`${API_URL}/api/destinations/search?keyword=${keyword}`, getAuthHeader());
       setDestinations(res.data);
     } catch (err) {
-      navigate('/login');
+      console.error("Arama hatası:", err);
     }
   };
 
-  const handleSearch = async () => {
-    if (!keyword.trim()) {
-      fetchDestinations();
-      return;
-    }
-    const res = await api.get(`/api/destinations/search?keyword=${keyword}`);
-    setDestinations(res.data);
-  };
-
+  // Yeni Destinasyon Ekleme
   const handleAdd = async (e) => {
     e.preventDefault();
-    await api.post('/api/destinations', {
-      ...form,
-      estimatedBudget: parseFloat(form.estimatedBudget),
-      durationDays: parseInt(form.durationDays)
-    });
-    setShowForm(false);
-    setForm({ name: '', country: '', description: '', estimatedBudget: '', durationDays: '', category: '' });
-    fetchDestinations();
+    try {
+      await axios.post(`${API_URL}/api/destinations`, {
+        ...form,
+        estimatedBudget: parseFloat(form.estimatedBudget),
+        durationDays: parseInt(form.durationDays)
+      }, getAuthHeader());
+      
+      setShowForm(false);
+      setForm({ name: '', country: '', description: '', estimatedBudget: '', durationDays: '', category: '' });
+      fetchDestinations();
+    } catch (err) {
+      console.error("Ekleme hatası:", err);
+      alert("Eklenirken bir hata oluştu. Lütfen bilgileri kontrol edin.");
+    }
   };
 
+  // Silme İşlemi
   const handleDelete = async (id) => {
-    await api.delete(`/api/destinations/${id}`);
-    fetchDestinations();
+    if (window.confirm("Bu destinasyonu silmek istediğinize emin misiniz?")) {
+      try {
+        await axios.delete(`${API_URL}/api/destinations/${id}`, getAuthHeader());
+        fetchDestinations();
+      } catch (err) {
+        console.error("Silme hatası:", err);
+      }
+    }
   };
 
   const handleLogout = () => {
@@ -100,6 +122,7 @@ function Destinations() {
                 placeholder={label}
                 value={form[key]}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                required
               />
             ))}
             <button style={styles.addBtn} type="submit">Kaydet</button>
@@ -108,19 +131,23 @@ function Destinations() {
       )}
 
       <div style={styles.grid}>
-        {destinations.map((d) => (
-          <div key={d.id} style={styles.card}>
-            <h3 style={styles.cardTitle}>{d.name}</h3>
-            <p style={styles.cardCountry}>📍 {d.country}</p>
-            <p style={styles.cardDesc}>{d.description}</p>
-            <div style={styles.cardFooter}>
-              <span style={styles.badge}>{d.category}</span>
-              <span style={styles.budget}>💰 {d.estimatedBudget} TL</span>
-              <span style={styles.days}>🗓 {d.durationDays} gün</span>
+        {destinations.length > 0 ? (
+          destinations.map((d) => (
+            <div key={d.id} style={styles.card}>
+              <h3 style={styles.cardTitle}>{d.name}</h3>
+              <p style={styles.cardCountry}>📍 {d.country}</p>
+              <p style={styles.cardDesc}>{d.description}</p>
+              <div style={styles.cardFooter}>
+                <span style={styles.badge}>{d.category}</span>
+                <span style={styles.budget}>💰 {d.estimatedBudget} TL</span>
+                <span style={styles.days}>🗓 {d.durationDays} gün</span>
+              </div>
+              <button style={styles.deleteBtn} onClick={() => handleDelete(d.id)}>Sil</button>
             </div>
-            <button style={styles.deleteBtn} onClick={() => handleDelete(d.id)}>Sil</button>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p style={{ textAlign: 'center', gridColumn: '1/-1', color: '#718096' }}>Henüz bir destinasyon bulunamadı.</p>
+        )}
       </div>
     </div>
   );

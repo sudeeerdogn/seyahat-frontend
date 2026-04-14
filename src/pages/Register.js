@@ -22,7 +22,15 @@ function Register() {
       localStorage.setItem('token', response.data.token);
       navigate('/destinations');
     } catch (err) {
-      setError('Kayıt başarısız! Bu email zaten kayıtlı olabilir.');
+      const backendMessage = err?.response?.data?.message;
+      const validationErrors = err?.response?.data?.validationErrors;
+      if (validationErrors) {
+        setError(Object.values(validationErrors).join(' | '));
+      } else if (backendMessage) {
+        setError(backendMessage);
+      } else {
+        setError('Sunucuya bağlanılamadı. Lütfen backend çalışıyor mu kontrol et.');
+      }
     }
   };
 
